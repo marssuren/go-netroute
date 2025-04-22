@@ -12,6 +12,7 @@
 package netroute
 
 import (
+	"log"
 	"net"
 	"runtime"
 	"sort"
@@ -24,6 +25,7 @@ import (
 func New() (routing.Router, error) {
 	// On Android, return a dummy/empty router to avoid syscalls requiring permissions.
 	if runtime.GOOS == "android" {
+		log.Println("go-netroute: Detected Android, skipping NetlinkRIB syscall.") // <-- 添加日志
 		// Return an empty, non-functional router implementation.
 		// This satisfies the interface but does nothing, avoiding the syscall.
 		return &router{}, nil // Assuming router is the internal implementation type
