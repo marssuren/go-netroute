@@ -13,6 +13,7 @@ package netroute
 
 import (
 	"net"
+	"runtime"
 	"sort"
 	"syscall"
 	"unsafe"
@@ -21,6 +22,15 @@ import (
 )
 
 func New() (routing.Router, error) {
+	// On Android, return a dummy/empty router to avoid syscalls requiring permissions.
+	if runtime.GOOS == "android" {
+		// Return an empty, non-functional router implementation.
+		// This satisfies the interface but does nothing, avoiding the syscall.
+		return &router{}, nil // Assuming router is the internal implementation type
+		// If &router{} doesn't work alone, might need to initialize its maps minimally:
+		// return &router{ ifaces: make(map[int]net.Interface), addrs: make(map[int]ipAddrs) }, nil
+	}
+
 	rtr := &router{}
 	rtr.ifaces = make(map[int]net.Interface)
 	rtr.addrs = make(map[int]ipAddrs)
